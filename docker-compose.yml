@@ -1,0 +1,57 @@
+version: '3.7'
+
+services:
+  nginx:
+    restart: always
+    image: nginx:1.23-alpine
+    ports:
+      - 80:80
+    volumes:
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - static_volume:/usr/src/app/backend/static
+  server:
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: ./docker/backend/Dockerfile
+    entrypoint: ["/usr/src/app/docker/backend/server-entrypoint.sh"]
+    volumes:
+      - static_volume:/usr/src/app/backend/static
+    expose:
+      - 8000
+    env_file:
+      - .env.dev
+  worker:
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: ./docker/backend/Dockerfile
+    entrypoint: ["/usr/src/app/docker/backend/worker-entrypoint.sh"]
+    volumes:
+      - static_volume:/usr/src/app/backend/static
+    env_file:
+      - .env.dev
+    depends_on:
+      - server
+      - redis
+  redis:
+    restart: unless-stopped
+    image: redis:7.0.5-alpine
+    expose:
+      - 6379
+#  db:
+#    image: postgres:13.0-alpine
+#    restart: unless-stopped
+#    volumes:
+#      - postgres_data:/var/lib/postgresql/data/
+#      - ./init_db.sh:/docker-entrypoint-initdb.d/init_db.sh
+#    environment:
+#      POSTGRES_DB: postgres
+#      POSTGRES_USER: postgres
+#      POSTGRES_PASSWORD: postgres
+#    expose:
+#      - 5432
+
+volumes:
+  static_volume: {}
+  # postgres_data: {}

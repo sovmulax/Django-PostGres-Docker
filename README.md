@@ -30,7 +30,7 @@ git clone https://github.com/your-username/your-repo.git
 cd your-repo
 ```
 
-Create a `.env` file in the project root directory and define the environment variables needed for the Django settings and database configuration. Here's a sample `.env` file:
+Create a `.env.dev` file in the project root directory and define the environment variables needed for the Django settings and database configuration. Here's a sample `.env.dev` file:
 
 ```yaml
 # Django settings
