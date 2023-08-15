@@ -1,28 +1,33 @@
-FROM python:3.8.15-alpine
-
-WORKDIR /usr/src/app
+FROM ubuntu:latest
 
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
-# install psycopg2 dependencies
-RUN apk update && apk add postgresql-dev gcc g++ python3-dev musl-dev
+# Update package repository and install required packages
+RUN apt-get update && \
+    apt-get install -y python3 python3-pip supervisor postgresql-client postgresql-server-dev-all gcc g++ \
+    curl netcat nano
 
-RUN pip install --upgrade pip
-RUN pip install gunicorn
+# Upgrade pip and install gunicorn
+RUN pip3 install --upgrade pip && pip3 install gunicorn
 
-RUN apk --update add libxml2-dev libxslt-dev libffi-dev musl-dev libgcc openssl-dev curl postgresql-client
-RUN apk add jpeg-dev zlib-dev freetype-dev lcms2-dev openjpeg-dev tiff-dev tk-dev tcl-dev nano
-RUN pip3 install psycopg2 psycopg2-binary httpie django-cors-headers
-RUN pip3 uninstall pytz tzdata
-RUN pip3 install pytz==2022.2.1 tzdata==2022.2
+# Create working directory
+WORKDIR /usr/src/app
 
-ADD ./requirements.txt /usr/src/app/
-RUN pip install -r requirements.txt
+# Copy requirements and install them
+COPY ./requirements.txt /usr/src/app/
+RUN pip3 install -r requirements.txt
 
-ADD ./app /usr/src/app/backend
-ADD ./docker /usr/src/app/docker
+# Copy your application files
+COPY ./app /usr/src/app/backend
+COPY ./docker /usr/src/app/docker
 
+# Copy Supervisor configuration files
+COPY ./docker/supervisor/supervisord.conf /etc/supervisor/conf.d/
+
+# Make entrypoint scripts executable
 RUN chmod +x /usr/src/app/docker/backend/server-entrypoint.sh
 RUN chmod +x /usr/src/app/docker/backend/worker-entrypoint.sh
+RUN chmod +x /usr/src/app/docker/backend/beat-entrypoint.sh
+RUN chmod +x /usr/src/app/docker/backend/daemon-entrypoint.sh
