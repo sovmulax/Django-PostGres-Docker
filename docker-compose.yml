@@ -2,56 +2,79 @@ version: '3.7'
 
 services:
   nginx:
+    container_name: nginx
     restart: always
     image: nginx:1.23-alpine
     ports:
       - 80:80
     volumes:
       - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
-      - static_volume:/usr/src/app/backend/static
-  server:
+      - static_volume:/usr/src/app/backend/static      
+      - media_volume:/usr/src/app/backend/media
+  app:
+    container_name: server
     restart: unless-stopped
     build:
       context: .
       dockerfile: ./docker/backend/Dockerfile
-    entrypoint: ["/usr/src/app/docker/backend/server-entrypoint.sh"]
+    entrypoint: [ "/usr/src/app/docker/backend/server-entrypoint.sh" ]
     volumes:
-      - static_volume:/usr/src/app/backend/static
+      - static_volume:/usr/src/app/backend/static      
+      - media_volume:/usr/src/app/backend/media
     expose:
       - 8000
     env_file:
       - .env.dev
-  worker:
-    restart: unless-stopped
-    build:
-      context: .
-      dockerfile: ./docker/backend/Dockerfile
-    entrypoint: ["/usr/src/app/docker/backend/worker-entrypoint.sh"]
-    volumes:
-      - static_volume:/usr/src/app/backend/static
-    env_file:
-      - .env.dev
-    depends_on:
-      - server
-      - redis
   redis:
+    container_name: redis
     restart: unless-stopped
     image: redis:7.0.5-alpine
     expose:
       - 6379
-#  db:
-#    image: postgres:13.0-alpine
-#    restart: unless-stopped
-#    volumes:
-#      - postgres_data:/var/lib/postgresql/data/
-#      - ./init_db.sh:/docker-entrypoint-initdb.d/init_db.sh
-#    environment:
-#      POSTGRES_DB: postgres
-#      POSTGRES_USER: postgres
-#      POSTGRES_PASSWORD: postgres
-#    expose:
-#      - 5432
+  worker:
+    container_name: celery-worker
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: ./docker/backend/Dockerfile
+    entrypoint: [ "/usr/src/app/docker/backend/worker-entrypoint.sh" ]
+    volumes:
+      - static_volume:/usr/src/app/backend/static      
+      - media_volume:/usr/src/app/backend/media
+    env_file:
+      - .env.dev
+    depends_on:
+      - app
+      - redis
+  beat:
+    container_name: celery-beat
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: ./docker/backend/Dockerfile
+    entrypoint: [ "/usr/src/app/docker/backend/beat-entrypoint.sh" ]
+    volumes:
+      - static_volume:/usr/src/app/backend/static      
+      - media_volume:/usr/src/app/backend/media
+    env_file:
+      - .env.dev
+    depends_on:
+      - app
+      - redis
+  deamons:
+    container_name: celery-beat-deamons
+    restart: unless-stopped
+    build:
+      dockerfile: ./docker/backend/Dockerfile
+    entrypoint: [ "/usr/src/app/docker/backend/daemon-entrypoint.sh" ]
+    depends_on:
+      - app
+    volumes:
+      - ./docker/supervisor/celery.conf:/etc/supervisor/conf.d/celery.conf
+      - static_volume:/usr/src/app/backend/static      
+      - media_volume:/usr/src/app/backend/media
 
 volumes:
   static_volume: {}
-  # postgres_data: {}
+  media_volume: {}
+  # postgbackend/res_data: {}
