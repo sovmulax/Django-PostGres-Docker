@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
 
-class IntranetConfig(AppConfig):
+class appnameConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'intranet'
+    name = 'appname'
