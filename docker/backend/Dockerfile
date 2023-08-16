@@ -13,21 +13,20 @@ RUN apt-get update && \
 RUN pip3 install --upgrade pip && pip3 install gunicorn
 
 # Create working directory
-WORKDIR /usr/src/app
+WORKDIR /home/app
 
 # Copy requirements and install them
-COPY ./requirements.txt /usr/src/app/
+COPY ./requirements.txt /home/app/
 RUN pip3 install -r requirements.txt
 
 # Copy your application files
-COPY ./app /usr/src/app/backend
-COPY ./docker /usr/src/app/docker
+COPY ./ /home/app
 
 # Copy Supervisor configuration files
 COPY ./docker/supervisor/supervisord.conf /etc/supervisor/conf.d/
 
 # Make entrypoint scripts executable
-RUN chmod +x /usr/src/app/docker/backend/server-entrypoint.sh
-RUN chmod +x /usr/src/app/docker/backend/worker-entrypoint.sh
-RUN chmod +x /usr/src/app/docker/backend/beat-entrypoint.sh
-RUN chmod +x /usr/src/app/docker/backend/daemon-entrypoint.sh
+RUN chmod +x /home/app/docker/backend/server-entrypoint.sh
+RUN chmod +x /home/app/docker/backend/worker-entrypoint.sh
+RUN chmod +x /home/app/docker/backend/beat-entrypoint.sh
+RUN chmod +x /home/app/docker/backend/daemon-entrypoint.sh

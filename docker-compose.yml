@@ -9,22 +9,9 @@ services:
       - 80:80
     volumes:
       - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
-      - static_volume:/usr/src/app/backend/static      
-      - media_volume:/usr/src/app/backend/media
-  app:
-    container_name: server
-    restart: unless-stopped
-    build:
-      context: .
-      dockerfile: ./docker/backend/Dockerfile
-    entrypoint: [ "/usr/src/app/docker/backend/server-entrypoint.sh" ]
-    volumes:
-      - static_volume:/usr/src/app/backend/static      
-      - media_volume:/usr/src/app/backend/media
-    expose:
-      - 8000
-    env_file:
-      - .env.dev
+      - static_volume:/home/app/static      
+      - media_volume:/home/app/media
+ 
   redis:
     container_name: redis
     restart: unless-stopped
@@ -37,12 +24,12 @@ services:
     build:
       context: .
       dockerfile: ./docker/backend/Dockerfile
-    entrypoint: [ "/usr/src/app/docker/backend/worker-entrypoint.sh" ]
+    entrypoint: [ "/home/app/docker/backend/worker-entrypoint.sh" ]
     volumes:
-      - static_volume:/usr/src/app/backend/static      
-      - media_volume:/usr/src/app/backend/media
+      - static_volume:/home/app/static      
+      - media_volume:/home/app/media
     env_file:
-      - .env.dev
+      - .env
     depends_on:
       - app
       - redis
@@ -52,12 +39,12 @@ services:
     build:
       context: .
       dockerfile: ./docker/backend/Dockerfile
-    entrypoint: [ "/usr/src/app/docker/backend/beat-entrypoint.sh" ]
+    entrypoint: [ "/home/app/docker/backend/beat-entrypoint.sh" ]
     volumes:
-      - static_volume:/usr/src/app/backend/static      
-      - media_volume:/usr/src/app/backend/media
+      - static_volume:/home/app/static      
+      - media_volume:/home/app/media
     env_file:
-      - .env.dev
+      - .env
     depends_on:
       - app
       - redis
@@ -66,15 +53,15 @@ services:
     restart: unless-stopped
     build:
       dockerfile: ./docker/backend/Dockerfile
-    entrypoint: [ "/usr/src/app/docker/backend/daemon-entrypoint.sh" ]
+    entrypoint: [ "/home/app/docker/backend/daemon-entrypoint.sh" ]
     depends_on:
       - app
     volumes:
       - ./docker/supervisor/celery.conf:/etc/supervisor/conf.d/celery.conf
-      - static_volume:/usr/src/app/backend/static      
-      - media_volume:/usr/src/app/backend/media
+      - static_volume:/home/app/static      
+      - media_volume:/home/app/media
 
 volumes:
   static_volume: {}
   media_volume: {}
-  # postgbackend/res_data: {}
+  # post/res_data: {}
