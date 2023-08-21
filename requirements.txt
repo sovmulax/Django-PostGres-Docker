@@ -10,3 +10,4 @@ django-cors-headers
 pillow
 django-import-export
 django-celery-results
+django-environ
