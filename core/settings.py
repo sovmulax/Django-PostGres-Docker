@@ -9,22 +9,24 @@ https://docs.djangoproject.com/en/4.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
-
+from celery.schedules import crontab
+from datetime import datetime
 from pathlib import Path
 import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).parent.parent
-
+BASE_DIR = Path(__file__).resolve().parent.parent
+print(BASE_DIR)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get("SECRET_KEY")
+SECRET_KEY = os.environ.get(
+    'SECRET_KEY', default='w$c&_gizu=vpxuh0mr@=ui7_f57=*3%3u76&*mn2591sc#xlb&')
 
 
-DEBUG = os.environ.get("DEBUG")
+DEBUG = os.environ.get("DEBUG", True)
 
 ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS").split(" ")
 ALLOWED_ORIGINS = os.environ.get("ALLOWED_ORIGINS").split(" ")
@@ -147,5 +149,16 @@ STATIC_ROOT = str(BASE_DIR / 'static')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # celery broker and result
-CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL")
-CELERY_RESULT_BACKEND = os.environ.get("CELERY_RESULT_BACKEND")
+CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL", 'redis://redis:6379')
+CELERY_RESULT_BACKEND = 'django-db' # os.environ.get("CELERY_RESULT_BACKEND", 'redis://redis:6379')
+CELERY_BEAT_SCHEDULE = {
+    'Task_one_schedule': {
+        'task': 'appname.tasks.task_one',
+        'schedule': crontab(),  # runs this task every 10 seconds
+    },
+    'Task_two_schedule': {
+        'task': 'appname.tasks.task_two',
+        'schedule': crontab(),  # crontab() runs the tasks every minute
+        'args': {datetime.now()}
+    },
+}
