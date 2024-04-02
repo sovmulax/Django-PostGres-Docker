@@ -5,9 +5,12 @@ ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
 # Update package repository and install required packages
-RUN apt-get update && \
-    apt-get install -y python3 python3-pip supervisor postgresql-client postgresql-server-dev-all gcc g++ \
-    curl netcat nano
+ARG DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update
+
+RUN apt-get install -y python3 python3-pip supervisor postgresql-client postgresql-server-dev-all gcc g++ \
+    curl netcat nano libldap2-dev libsasl2-dev libssl-dev
 
 # Upgrade pip and install gunicorn
 RUN pip3 install --upgrade pip && pip3 install gunicorn
@@ -20,7 +23,8 @@ COPY ./requirements.txt /home/app/
 RUN pip3 install -r requirements.txt
 
 # Copy your application files
-COPY ./ /home/app
+COPY ./app /home/app/backend
+COPY ./docker /home/app/docker
 
 # Copy Supervisor configuration files
 COPY ./docker/supervisor/supervisord.conf /etc/supervisor/conf.d/

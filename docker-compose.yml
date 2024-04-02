@@ -3,80 +3,55 @@ version: '3.7'
 services:
   app:
     container_name: server
-    restart: unless-stopped
+    restart: always
     build:
       context: .
       dockerfile: ./docker/backend/Dockerfile
     entrypoint: [ "/home/app/docker/backend/server-entrypoint.sh" ]
     volumes:
-      - static_volume:/home/app/static
-      - media_volume:/home/app/media
+      - static_volume:/home/app/backend/static
+      - media_volume:/home/app/backend/media
     expose:
       - 8000
     env_file:
-      - .env
-
+      - ./app/core/.env
   nginx:
     container_name: nginx
+    build: ./docker/nginx
     restart: always
-    image: nginx:1.23-alpine
-    ports:
-      - 80:80
     volumes:
-      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
-      - static_volume:/home/app/static
-      - media_volume:/home/app/media
-
+      - static_volume:/home/app/backend/static
+      - media_volume:/home/app/backend/media
+    ports:
+      - 4001:80 #externe port of the serveur
+    depends_on:
+      - app
+    logging:
+      options:
+        max-size: 10m
   redis:
     container_name: redis
-    restart: unless-stopped
+    restart: always
     image: redis:7.0.5-alpine
     expose:
       - 6379
-  worker:
-    container_name: celery-worker
-    restart: unless-stopped
-    build:
-      context: .
-      dockerfile: ./docker/backend/Dockerfile
-    entrypoint: [ "/home/app/docker/backend/worker-entrypoint.sh" ]
-    volumes:
-      - static_volume:/home/app/static
-      - media_volume:/home/app/media
-    env_file:
-      - .env
-    depends_on:
-      - app
-      - redis
-  beat:
-    container_name: celery-beat
-    restart: unless-stopped
-    build:
-      context: .
-      dockerfile: ./docker/backend/Dockerfile
-    entrypoint: [ "/home/app/docker/backend/beat-entrypoint.sh" ]
-    volumes:
-      - static_volume:/home/app/static
-      - media_volume:/home/app/media
-    env_file:
-      - .env
-    depends_on:
-      - app
-      - redis
   deamons:
     container_name: celery-beat-deamons
-    restart: unless-stopped
+    restart: always
     build:
+      context: .
       dockerfile: ./docker/backend/Dockerfile
     entrypoint: [ "/home/app/docker/backend/daemon-entrypoint.sh" ]
+    env_file:
+      - ./app/core/.env
     depends_on:
       - app
+      - redis
     volumes:
       - ./docker/supervisor/celery.conf:/etc/supervisor/conf.d/celery.conf
-      - static_volume:/home/app/static
-      - media_volume:/home/app/media
+      - static_volume:/home/app/backend/static
+      - media_volume:/home/app/backend/media
 
 volumes:
   static_volume: {}
   media_volume: {}
-  # post/res_data: {}
