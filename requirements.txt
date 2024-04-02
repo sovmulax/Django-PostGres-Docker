@@ -3,10 +3,12 @@ Django==4.2.3
 sqlparse==0.4.4
 tzdata==2023.3
 celery[redis]
-psycopg2
 psycopg2-binary
+psycopg2
 httpie
 django-cors-headers
 pillow
 django-import-export
 django-celery-results
+django-environ
+django-admin-interface
