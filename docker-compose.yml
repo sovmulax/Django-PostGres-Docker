@@ -15,6 +15,8 @@ services:
       - 8000
     env_file:
       - ./app/core/.env
+    networks:
+      - network_custom
   nginx:
     container_name: nginx
     build: ./docker/nginx
@@ -29,12 +31,16 @@ services:
     logging:
       options:
         max-size: 10m
+    networks:
+      - network_custom
   redis:
     container_name: redis
     restart: always
     image: redis:7.0.5-alpine
     expose:
       - 6379
+    networks:
+      - network_custom
   deamons:
     container_name: celery-beat-deamons
     restart: always
@@ -51,6 +57,17 @@ services:
       - ./docker/supervisor/celery.conf:/etc/supervisor/conf.d/celery.conf
       - static_volume:/home/app/backend/static
       - media_volume:/home/app/backend/media
+    networks:
+      - network_custom
+
+networks:
+  network_custom:
+    name: telework_network
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.28.0.0/16 # to custom
 
 volumes:
   static_volume: {}
