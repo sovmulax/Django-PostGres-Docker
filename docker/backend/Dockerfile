@@ -23,7 +23,9 @@ COPY ./requirements.txt /home/app/
 RUN pip3 install -r requirements.txt
 
 # Copy your application files
-COPY ./app /home/app/backend
+COPY ./code /home/app/backend
+COPY ./appname /home/app/backend
+COPY ./manage.py /home/app/backend
 COPY ./docker /home/app/docker
 
 # Copy Supervisor configuration files
