@@ -31,6 +31,4 @@ COPY ./docker/supervisor/supervisord.conf /etc/supervisor/conf.d/
 
 # Make entrypoint scripts executable
 RUN chmod +x /home/app/docker/backend/server-entrypoint.sh
-RUN chmod +x /home/app/docker/backend/worker-entrypoint.sh
-RUN chmod +x /home/app/docker/backend/beat-entrypoint.sh
 RUN chmod +x /home/app/docker/backend/daemon-entrypoint.sh

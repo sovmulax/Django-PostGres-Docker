@@ -9,8 +9,8 @@ services:
       dockerfile: ./docker/backend/Dockerfile
     entrypoint: [ "/home/app/docker/backend/server-entrypoint.sh" ]
     volumes:
-      - static_volume:/home/app/backend/static
-      - media_volume:/home/app/backend/media
+      - static_volume:/home/app/static
+      - media_volume:/home/app/media
     expose:
       - 8000
     env_file:
@@ -22,8 +22,8 @@ services:
     build: ./docker/nginx
     restart: always
     volumes:
-      - static_volume:/home/app/backend/static
-      - media_volume:/home/app/backend/media
+      - static_volume:/home/app/static
+      - media_volume:/home/app/media
     ports:
       - 4001:80 #externe port of the serveur
     depends_on:
@@ -55,8 +55,8 @@ services:
       - redis
     volumes:
       - ./docker/supervisor/celery.conf:/etc/supervisor/conf.d/celery.conf
-      - static_volume:/home/app/backend/static
-      - media_volume:/home/app/backend/media
+      - static_volume:/home/app/static
+      - media_volume:/home/app/media
     networks:
       - network_custom
 
