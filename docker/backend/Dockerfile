@@ -1,15 +1,14 @@
 FROM ubuntu:22.04
 
 # Set environment variables
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
 
 # Update package repository and install required packages
 ARG DEBIAN_FRONTEND=noninteractive
 
-RUN apt-get update
-
-RUN apt-get install -y python3 python3-pip supervisor postgresql-client postgresql-server-dev-all gcc g++ \
+RUN apt-get update && \ 
+    apt-get install -y python3 python3-pip supervisor postgresql-client postgresql-server-dev-all gcc g++ \
     curl netcat nano libldap2-dev libsasl2-dev libssl-dev
 
 # Upgrade pip and install gunicorn
@@ -32,3 +31,4 @@ COPY ./docker/supervisor/supervisord.conf /etc/supervisor/conf.d/
 # Make entrypoint scripts executable
 RUN chmod +x /home/app/docker/backend/server-entrypoint.sh
 RUN chmod +x /home/app/docker/backend/daemon-entrypoint.sh
+RUN chmod +x /home/app/docker/backend/log-forwarder.sh
