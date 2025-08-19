@@ -6,8 +6,9 @@ celery[redis]
 psycopg2-binary
 psycopg2
 httpie
-django-cors-headers
 pillow
+
+django-cors-headers
 django-import-export
 django-celery-results
 django-environ
@@ -15,3 +16,6 @@ django-admin-interface
 django-simple-history
 django-filter==23.5
 django-safedelete
+django-axes==6.0.1
+django-session-security==2.6.7
+django-maintenance-mode
