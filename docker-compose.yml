@@ -5,7 +5,7 @@ services:
     build:
       context: .
       dockerfile: ./docker/backend/Dockerfile
-    entrypoint: [ "/home/app/docker/backend/server-entrypoint.sh" ]
+    entrypoint: ["/home/app/docker/backend/server-entrypoint.sh"]
     volumes:
       - static_volume:/home/app/backend/static
       - media_volume:/home/app/backend/media
@@ -14,7 +14,7 @@ services:
     env_file:
       - ./app/.env
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8000/appname/admin/" ] # To custom
+      test: ["CMD", "curl", "-f", "http://localhost:8000/appname/admin/"] # To custom
       interval: 30s
       timeout: 10s
       retries: 3
@@ -71,7 +71,7 @@ services:
     build:
       context: .
       dockerfile: ./docker/backend/Dockerfile
-    entrypoint: [ "/home/app/docker/backend/daemon-entrypoint.sh" ]
+    entrypoint: ["/home/app/docker/backend/daemon-entrypoint.sh"]
     env_file:
       - ./app/.env
     depends_on:
