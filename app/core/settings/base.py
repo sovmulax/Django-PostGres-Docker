@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     "simple_history",
     "import_export",
     "django_celery_results",
+    "django_celery_beat",
     "session_security",  # Django plugin to log out users
     "maintenance",
     # "axes",  # Django plugin for keeping track of suspicious login
@@ -155,16 +156,12 @@ AUTH_PASSWORD_VALIDATORS = [
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 DATE_INPUT_FORMATS = ("%d/%m/%Y", "%Y-%m-%d")
 
+# Configuration for django-celery-beat
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
 # celery broker and result
 CELERY_TIMEZONE = env("CELERY_TIMEZONE")
 CELERY_BROKER_URL = env("CELERY_BROKER_URL")
 CELERY_RESULT_BACKEND = env("CELERY_RESULT_BACKEND")
-CELERY_BEAT_SCHEDULE = {
-    "Task_one_schedule": {
-        "task": "appname.tasks.task_one",
-        "schedule": crontab(minute=00, hour=7),
-    },
-}
 
 # Email settings
 EMAIL_BACKEND = env("EMAIL_BACKEND")
